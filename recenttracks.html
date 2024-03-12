@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>recenttracks by Rowlit</title>
+</head>
+<body>
+    <link rel="stylesheet" type="text/css" href="./core.css">
+  <h1>recenttracks by Rowlit</h1>
+  <p>Enter any last.fm username:</p>
+  <center><input type="text" id="usernameInput">
+  <button onclick="fetchRecentTracks()">get them!</button> </center>
+  <p>Number of tracks to display:</p>
+  <center><input type="number" id="trackCountInput" value="3">
+  <ul id="trackList"></ul> </center>
+
+  <script>
+    async function fetchRecentTracks() {
+      const username = document.getElementById('usernameInput').value;
+      const trackCount = document.getElementById('trackCountInput').value;
+      const apiKey = '60ead34e786a6e2579df4a8aba93e273'; 
+      const apiUrl = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${username}&api_key=${apiKey}&format=json`;
+
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        const trackList = document.getElementById('trackList');
+        trackList.innerHTML = '';
+
+        if (data && data.recenttracks && data.recenttracks.track) {
+          const tracks = data.recenttracks.track.slice(0, trackCount); 
+          if (tracks.length === 0) {
+            trackList.innerHTML = '<li>No scrobbles found. Go listen to music.</li>';
+          } else {
+            tracks.forEach(track => {
+              const li = document.createElement('li');
+              li.textContent = `${track.artist['#text']} - ${track.name}`;
+              trackList.appendChild(li);
+            });
+          }
+        } else {
+          trackList.innerHTML = '<li>Seems they have not scrobbled anything recently. Go listen to some music.</li>';
+        }
+      } catch (error) {
+        console.error('Error fetching recent tracks:', error);
+        alert('something went wrong. try again! (if you are having constant issues, feel free to make an issue report on github.');
+      }
+    }
+  </script>
+</body>
+</html>
